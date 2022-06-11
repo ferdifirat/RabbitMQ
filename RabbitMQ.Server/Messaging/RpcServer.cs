@@ -4,7 +4,6 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Core.Model;
 using RabbitMQ.EventBus;
 using RabbitMQ.EventBus.Core;
-using System.Net;
 using System.Text;
 
 namespace RabbitMQ.Server.Messaging

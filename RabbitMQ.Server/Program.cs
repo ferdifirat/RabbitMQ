@@ -1,6 +1,8 @@
 using RabbitMQ.Client;
 using RabbitMQ.EventBus;
 using RabbitMQ.EventBus.Producer;
+using RabbitMQ.Server.Extensions;
+using RabbitMQ.Server.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,15 +12,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 #region RabbitMQ Configuration
 builder.Services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
@@ -45,10 +38,22 @@ builder.Services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
     return new DefaultRabbitMQPersistentConnection(factory, retryCount);
 });
 builder.Services.AddScoped<EventBusRabbitMQProducer>();
+builder.Services.AddSingleton<RpcServer>();
 
 #endregion
 
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
+var serviceProvider = builder.Services.BuildServiceProvider();
+app.UseRabbitListener(serviceProvider);
 
 app.UseAuthorization();
 

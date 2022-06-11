@@ -22,7 +22,7 @@ namespace RabbitMQ.Api.Controller
         public async Task<ActionResult> Publish([FromBody] string message)
         {
             _eventBusRabbitMQProducer.Publish($"{EventBusConstants.DirectQueue}", JsonConvert.SerializeObject(message));
-            return Ok(response);
+            return Ok();
         }
     }
 }

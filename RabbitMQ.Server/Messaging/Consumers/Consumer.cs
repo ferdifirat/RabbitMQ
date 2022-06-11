@@ -8,16 +8,16 @@ using System.Text;
 
 namespace RabbitMQ.Server.Messaging.Consumers
 {
-    public class EventBusJobApiConsumer
+    public class Consumer
     {
         private readonly IRabbitMQPersistentConnection _persistentConnection;
 
-        public EventBusJobApiConsumer(IRabbitMQPersistentConnection persistentConnection)
+        public Consumer(IRabbitMQPersistentConnection persistentConnection)
         {
             _persistentConnection = persistentConnection;
         }
 
-        public void Consume(string queue, bool singleActiveConsumer = false)
+        public void Consume(string queue)
         {
 
             if (!_persistentConnection.IsConnected)
@@ -27,7 +27,7 @@ namespace RabbitMQ.Server.Messaging.Consumers
             var args = new Dictionary<string, object>();
             args.Add("x-single-active-consumer", true);
 
-            channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: singleActiveConsumer == false ? null : args);
+            channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments : args);
 
             // BasicQos method uses which to make it possible to limit the number of unacknowledged messages on a channel.
             channel.BasicQos(0, 1, true);
