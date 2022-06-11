@@ -1,5 +1,4 @@
-﻿using Netlog.Crm.EventBus.Helper;
-using Polly;
+﻿using Polly;
 using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -60,21 +59,21 @@ namespace RabbitMQ.EventBus
         private void OnConnectionBlocked(object sender, ConnectionBlockedEventArgs e)
         {
             if (_disposed) return;
-            this.OnError(EnumEventBusErrorMessage.ConnectionBlocked, EnumErrorLogType.EventBusWarning);
+            //logging
             TryConnect();
         }
 
         private void OnCallbackException(object sender, CallbackExceptionEventArgs e)
         {
             if (_disposed) return;
-            this.OnError(EnumEventBusErrorMessage.ConnectionClosed, EnumErrorLogType.EventBusWarning);
+            //logging
             TryConnect();
         }
 
         private void OnConnectionShutdown(object sender, ShutdownEventArgs reason)
         {
             if (_disposed) return;
-            this.OnError(EnumEventBusErrorMessage.ConnectionClosed, EnumErrorLogType.EventBusWarning);
+            //logging
             TryConnect();
         }
 
@@ -82,7 +81,7 @@ namespace RabbitMQ.EventBus
         {
             if (!IsConnected)
             {
-                this.OnError(EnumEventBusErrorMessage.NoValidConnectionToCreateModel, EnumErrorLogType.EventBusBrokerError);
+                //logging
                 throw new InvalidOperationException("No RabbitMQ connections are available to perfrom this action.");
             }
 
@@ -101,22 +100,8 @@ namespace RabbitMQ.EventBus
             }
             catch (Exception ex)
             {
-                this.OnError(EnumEventBusErrorMessage.TheResourcesUsedDeleted, EnumErrorLogType.EventBusBrokerError, ex);
+                //logging
             }
-        }
-
-        private void OnError(EnumEventBusErrorMessage error, EnumErrorLogType enumEventBusErrorType, Exception ex = null)
-        {
-            _errorLogRepository.Add(new ErrorLog()
-            {
-                CreatedOn = DateTime.UtcNow,
-                Code = enumEventBusErrorType.ToString(),
-                Exception = ex != null ? JsonConvert.SerializeObject(ex) : null,
-                ExceptionMessage = error.message,
-                ActionDate = DateTime.UtcNow,
-                ControllerName = "DefaultRabbitMQPersistentConnection",
-                InnerExceptionMessage = ex == null ? String.Empty : JsonConvert.SerializeObject(ex.InnerException),
-            });
         }
     }
 }
